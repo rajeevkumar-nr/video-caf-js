@@ -16,7 +16,7 @@
   "author": "Andreu Santarén Llop",
   "license": "MIT",
   "dependencies": {
-    "newrelic-video-core": "github:newrelic/video-core-js#stable"
+    "@newrelic/video-core": "^3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

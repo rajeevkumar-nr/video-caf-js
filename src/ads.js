@@ -1,4 +1,4 @@
-import * as nrvideo from "newrelic-video-core";
+import nrvideo from '@newrelic/video-core'
 import { version } from "../package.json";
 
 export default class CAFAdsTracker extends nrvideo.VideoTracker {
@@ -123,31 +123,6 @@ export default class CAFAdsTracker extends nrvideo.VideoTracker {
   onBitrateChanged (ev) {
     this._currentBitrate = ev.totalBitrate
     this.sendRenditionChanged()
-  }
-
-  onPause() {
-    this.sendPause();
-  }
-
-  onPlay() {
-    this.sendResume();
-  }
-
-  onSeekStart (ev) {
-    this.sendSeekStart()
-  }
-
-  onSeekEnd (ev) {
-    this.sendSeekEnd()
-  }
-
-  onError (ev) {
-    let errorMessage = ev.reason; 
-
-    if (ev.error && ev.error.message) {
-      errorMessage = ev.error.message;
-    }
-    this.sendError({errorCode: ev.detailedErrorCode, errorMessage: errorMessage})
   }
 
 }

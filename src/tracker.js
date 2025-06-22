@@ -1,4 +1,4 @@
-import * as nrvideo from 'newrelic-video-core'
+import nrvideo from '@newrelic/video-core'
 import { version } from '../package.json'
 import CAFAdsTracker from './ads'
 import NRHarvester from './harvester';
@@ -24,6 +24,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
     this.accountId = authCredentials.accountId;
     this.licenseKey = authCredentials.applicationToken;
     this.endpoint = authCredentials.endpoint;
+    this.setUserId("your_user_id"); // User Id
   }
 
   initializeHarvester() {
@@ -252,7 +253,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
     if (!this.adsTracker.state.isAdBreak) {
       this.sendResume()
     } else {
-      this.adsTracker.onPlay()
+      this.adsTracker.sendResume()
     }
   }
 
@@ -261,7 +262,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
       if (!this.adsTracker.state.isAdBreak) {
         this.sendPause()
       } else {
-        this.adsTracker.onPause()
+        this.adsTracker.sendPause()
       }
     }
   }
@@ -280,7 +281,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
     if (!this.adsTracker.state.isAdBreak) {
       this.sendSeekStart()
     } else {
-      this.adsTracker.onSeekStart()
+      this.adsTracker.sendSeekStart()
     }
   }
 
@@ -288,7 +289,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
     if (!this.adsTracker.state.isAdBreak) {
       this.sendSeekEnd()
     } else {
-      this.adsTracker.onSeekEnd()
+      this.adsTracker.sendSeekEnd()
     }
   }
 
@@ -298,12 +299,17 @@ export default class CAFTracker extends nrvideo.VideoTracker {
   }
 
   onError (ev) {
+    let errorMessage = ev.reason; 
+    if (ev.error && ev.error.message) {
+      errorMessage = ev.error.message;
+    }
+
     if (this.state._isAd || ev.detailedErrorCode === cast.framework.events.DetailedErrorCode.BREAK_CLIP_LOADING_ERROR || 
         ev.detailedErrorCode === cast.framework.events.DetailedErrorCode.BREAK_SEEK_INTERCEPTOR_ERROR) {
-      this.adsTracker.sendError({errorCode: ev.detailedErrorCode, errorMessage: ev.reason})
+      this.adsTracker.sendError({errorCode: ev.detailedErrorCode, errorMessage: errorMessage})
       return
     }
-    this.sendError({errorCode: ev.detailedErrorCode, errorMessage: ev.reason})
+    this.sendError({errorCode: ev.detailedErrorCode, errorMessage: errorMessage})
   }
 
   /** DEBUG Events Listeners */
@@ -324,7 +330,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
   updateRecordCustomEvent() {
     window.newrelic = window.newrelic || {};
     window.newrelic.recordCustomEvent = async (eventType, attributes) => { 
-      await this.nrHarvester.addEventToBuffer(
+      this.nrHarvester.addEventToBuffer(
         eventType,
         attributes
       );
