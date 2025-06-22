@@ -1,5 +1,5 @@
 
-export const DEFAULT_HARVEST_TIME = 60000 // 30 seconds
+export const DEFAULT_HARVEST_TIME = 60000 // 60 seconds
 export const DEFAULT_BUFFER_SIZE = 100 // 100 events
 
 export const NR_ENDPOINT = {
