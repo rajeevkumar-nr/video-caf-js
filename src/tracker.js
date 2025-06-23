@@ -329,7 +329,7 @@ export default class CAFTracker extends nrvideo.VideoTracker {
 
   updateRecordCustomEvent() {
     window.newrelic = window.newrelic || {};
-    window.newrelic.recordCustomEvent = async (eventType, attributes) => { 
+    window.newrelic.recordCustomEvent = (eventType, attributes) => { 
       this.nrHarvester.addEventToBuffer(
         eventType,
         attributes
