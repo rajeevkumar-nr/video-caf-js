@@ -69,3 +69,6 @@ export const CHROMECAST_METADATA = {
     "deviceManufacturer": "Google",
     "architecture": "aarch64",
 };
+
+export const STAGING_MOBILE_ENDPOINT = "https://staging-mobile-collector.newrelic.com/mobile/v5/connect"
+export const MOBILE_ENDPOINT = "https://mobile-collector.newrelic.com/mobile/v5/connect";

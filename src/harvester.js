@@ -1,7 +1,8 @@
 import nrvideo from '@newrelic/video-core'
 import {
   DEFAULT_HARVEST_TIME, DEFAULT_BUFFER_SIZE, NR_ENDPOINT, 
-  DATA_TOKENS_PAYLOAD, DEVICE_INFO, CHROMECAST_METADATA
+  DATA_TOKENS_PAYLOAD, DEVICE_INFO, CHROMECAST_METADATA,
+  STAGING_MOBILE_ENDPOINT, MOBILE_ENDPOINT
 } from './constants'
 
 export default class NRHarvester {
@@ -53,10 +54,7 @@ export default class NRHarvester {
     }
 
     async fetchDataTokens(maxRetries = 10, initialDelay = 1000) {
-      const url = this.endpoint === NR_ENDPOINT.STAGING
-        ? "https://staging-mobile-collector.newrelic.com/mobile/v5/connect"
-        : "https://mobile-collector.newrelic.com/mobile/v5/connect";
-    
+      const url = this.endpoint === NR_ENDPOINT.STAGING ? STAGING_MOBILE_ENDPOINT : MOBILE_ENDPOINT;
       const headers = {
         "X-App-License-Key": this.licenseKey,
         "Content-Type": "application/json",
@@ -98,9 +96,7 @@ export default class NRHarvester {
     }
 
     async sendToMobileCollector(eventsToProcess) {
-      const url = this.endpoint == NR_ENDPOINT.STAGING
-              ? "https://staging-mobile-collector.newrelic.com/mobile/v3/data"
-              : "https://mobile-collector.newrelic.com/mobile/v3/data";
+      const url = this.endpoint === NR_ENDPOINT.STAGING ? STAGING_MOBILE_ENDPOINT : MOBILE_ENDPOINT;
       const payload = [
           this.dataToken,
           DEVICE_INFO,
