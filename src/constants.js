@@ -1,5 +1,5 @@
 
-export const DEFAULT_HARVEST_TIME = 30000 // 30 seconds
+export const DEFAULT_HARVEST_TIME = 60000 // 60 seconds
 export const DEFAULT_BUFFER_SIZE = 100 // 100 events
 
 export const NR_ENDPOINT = {
@@ -69,3 +69,6 @@ export const CHROMECAST_METADATA = {
     "deviceManufacturer": "Google",
     "architecture": "aarch64",
 };
+
+export const STAGING_MOBILE_ENDPOINT = "https://staging-mobile-collector.newrelic.com/mobile/v5/connect"
+export const MOBILE_ENDPOINT = "https://mobile-collector.newrelic.com/mobile/v5/connect";

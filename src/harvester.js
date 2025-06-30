@@ -1,7 +1,8 @@
-import * as nrvideo from "newrelic-video-core";
+import nrvideo from '@newrelic/video-core'
 import {
   DEFAULT_HARVEST_TIME, DEFAULT_BUFFER_SIZE, NR_ENDPOINT, 
-  DATA_TOKENS_PAYLOAD, DEVICE_INFO, CHROMECAST_METADATA
+  DATA_TOKENS_PAYLOAD, DEVICE_INFO, CHROMECAST_METADATA,
+  STAGING_MOBILE_ENDPOINT, MOBILE_ENDPOINT
 } from './constants'
 
 export default class NRHarvester {
@@ -18,30 +19,28 @@ export default class NRHarvester {
       this.eventBuffer = [];
       this.harvestInterval = options.harvestInterval || DEFAULT_HARVEST_TIME; 
       this.maxBufferSize = options.maxBufferSize || DEFAULT_BUFFER_SIZE;
-      this.harvestTimer = null;
       this.dataToken = null; 
       this.isHarvesting = false;
 
-      this.startHarvestTimer();
-    }
-  
-    startHarvestTimer() {
-      if (this.harvestTimer) {
-        this.stopHarvestTimer();
-      }
-      this.harvestTimer = setTimeout(async () => {
-        await this.sendBufferedEvents();
-      }, this.harvestInterval);
+      this.initialiseHarvester();
     }
 
-    stopHarvestTimer() {
-      if (this.harvestTimer) {
-        clearTimeout(this.harvestTimer);
-        this.harvestTimer = null;
+    async initialiseHarvester() {
+      try {
+        await this.fetchDataTokens();
+        this.startHarvestInterval();
+      } catch (error) {
+        nrvideo.Log.error("Initialization error:", error);
       }
     }
   
-    async addEventToBuffer(eventType, attributes) {
+    startHarvestInterval() {
+      setInterval(() => {
+        this.sendBufferedEvents();
+      }, this.harvestInterval);
+    }
+  
+    addEventToBuffer(eventType, attributes) {
       const event = {
         ...attributes,
         "eventType": eventType,
@@ -50,54 +49,54 @@ export default class NRHarvester {
       this.eventBuffer.push(event);
   
       if (this.eventBuffer.length >= this.maxBufferSize) {
-        await this.sendBufferedEvents();
-      } else {
-        if (!this.harvestTimer) {
-          this.startHarvestTimer();
-        }
+        this.sendBufferedEvents();
       }
     }
-  
-    async fetchDataTokens() {
-      if (this.dataToken) {
-        return this.dataToken; 
-      }
 
-      const url = this.endpoint == NR_ENDPOINT.STAGING
-                ? "https://staging-mobile-collector.newrelic.com/mobile/v5/connect"
-                : "https://mobile-collector.newrelic.com/mobile/v5/connect";
+    async fetchDataTokens(maxRetries = 10, initialDelay = 1000) {
+      const url = this.endpoint === NR_ENDPOINT.STAGING ? STAGING_MOBILE_ENDPOINT : MOBILE_ENDPOINT;
       const headers = {
         "X-App-License-Key": this.licenseKey,
         "Content-Type": "application/json",
       };
       const payload = DATA_TOKENS_PAYLOAD;
-  
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(payload),
-        });
-  
-        if (response.ok) {
-          const data = await response.json();
-          this.dataToken = data.data_token;
-          return data.data_token;
-        } else {
-          const errorText = await response.text();
-          nrvideo.Log.error(`Failed to fetch data token: ${errorText}`);
-          return null;
+      let attempt = 0;
+      let delay = initialDelay;
+    
+      while (attempt < maxRetries) {
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(payload),
+          });
+    
+          if (response.ok) {
+            const data = await response.json();
+            this.dataToken = data.data_token;
+            return; 
+          } else {
+            const errorText = await response.text();
+            nrvideo.Log.error(`Failed to fetch data token: ${errorText}`);
+          }
+        } catch (error) {
+          nrvideo.Log.error(`Error in fetching data token: ${error}`);
         }
-      } catch (error) {
-        nrvideo.Log.error(`Error in fetching data token: ${error}`);
-        return null;
+    
+        attempt += 1;
+        if (attempt < maxRetries) {
+          // Exponential backoff
+          nrvideo.Log.debug(`Retrying fetchDataTokens - attempt ${attempt} in ${delay} ms`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2; // Double the delay for the next attempt
+        } else {
+          nrvideo.Log.error(`Max retries reached (${maxRetries}).`);
+        }
       }
     }
 
     async sendToMobileCollector(eventsToProcess) {
-      const url = this.endpoint == NR_ENDPOINT.STAGING
-              ? "https://staging-mobile-collector.newrelic.com/mobile/v3/data"
-              : "https://mobile-collector.newrelic.com/mobile/v3/data";
+      const url = this.endpoint === NR_ENDPOINT.STAGING ? STAGING_MOBILE_ENDPOINT : MOBILE_ENDPOINT;
       const payload = [
           this.dataToken,
           DEVICE_INFO,
@@ -132,7 +131,7 @@ export default class NRHarvester {
       }
     }
   
-    async sendBufferedEvents() {
+    sendBufferedEvents() {
       if (this.isHarvesting) {
         nrvideo.Log.error("Harvesting is still in progress.");
         return;
@@ -140,28 +139,26 @@ export default class NRHarvester {
 
       if (this.eventBuffer.length === 0) {
         nrvideo.Log.error("No events in buffer to send.");
-        this.startHarvestTimer();
         return;
       }
 
-      this.isHarvesting = true;
-      const eventsToSend = [...this.eventBuffer]; 
-      this.eventBuffer = [];
+      if (this.dataToken) {
+        this.isHarvesting = true;
+        const eventsToSend = [...this.eventBuffer]; 
+        this.eventBuffer = [];
 
-      try {
-        await this.fetchDataTokens();
-        if (this.dataToken) {
-          const response = await this.sendToMobileCollector(eventsToSend);
-          console.log("Harvest successful. Response:", response);
-        } else {
-          throw new Error('Error in dataToken')
-        }
-      } catch (error) {
-        nrvideo.Log.error("Harvest failed, re-queueing events. Error:", error.message);
-        this.eventBuffer.unshift(...eventsToSend);
-      } finally {
-        this.isHarvesting = false;
-        this.startHarvestTimer();
+        this.sendToMobileCollector(eventsToSend)
+          .then((response) => {
+            nrvideo.Log.debug("Harvest successful. Response:", response);
+            this.isHarvesting = false;
+          })
+          .catch((error) => {
+            nrvideo.Log.error("Harvest failed, re-queueing events. Error:", error.message);
+            this.eventBuffer.unshift(...eventsToSend);
+            this.isHarvesting = false;
+          });
+      } else {
+        nrvideo.Log.error("No valid data token available. Cannot send events.");
       }
     }
 }
