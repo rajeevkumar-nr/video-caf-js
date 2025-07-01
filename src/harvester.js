@@ -54,7 +54,10 @@ export default class NRHarvester {
     }
 
     async fetchDataTokens(maxRetries = 10, initialDelay = 1000) {
-      const url = this.endpoint === NR_ENDPOINT.STAGING ? STAGING_MOBILE_ENDPOINT : MOBILE_ENDPOINT;
+      const url = this.endpoint === NR_ENDPOINT.STAGING
+        ? `${STAGING_MOBILE_ENDPOINT}/v5/connect`
+        : `${MOBILE_ENDPOINT}/v5/connect`;
+    
       const headers = {
         "X-App-License-Key": this.licenseKey,
         "Content-Type": "application/json",
@@ -96,7 +99,9 @@ export default class NRHarvester {
     }
 
     async sendToMobileCollector(eventsToProcess) {
-      const url = this.endpoint === NR_ENDPOINT.STAGING ? STAGING_MOBILE_ENDPOINT : MOBILE_ENDPOINT;
+      const url = this.endpoint === NR_ENDPOINT.STAGING
+              ? `${STAGING_MOBILE_ENDPOINT}/v3/data`
+              : `${MOBILE_ENDPOINT}/v3/data`
       const payload = [
           this.dataToken,
           DEVICE_INFO,
