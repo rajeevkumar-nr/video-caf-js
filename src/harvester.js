@@ -1,6 +1,6 @@
 import nrvideo from '@newrelic/video-core'
 import {
-  DEFAULT_HARVEST_TIME, DEFAULT_BUFFER_SIZE, NR_ENDPOINT, 
+  DEFAULT_HARVEST_TIME, DEFAULT_BUFFER_SIZE, NR_ENDPOINT,
   DATA_TOKENS_PAYLOAD, DEVICE_INFO, CHROMECAST_METADATA,
   STAGING_MOBILE_ENDPOINT, MOBILE_ENDPOINT
 } from './constants'
@@ -8,18 +8,21 @@ import {
 export default class NRHarvester {
   
     /**
-     * Constructor
-     * @param {string} licenseKey - The New Relic application license key.
-     * @param {string} endpoint - Type of endpoint to use (e.g., 'US', 'EU', 'staging').
-     * @param {object} [options] - Optional configuration for harvesting.
+     * @param {string} licenseKey         Mobile App Token (-NRMA).
+     * @param {string} endpoint           NR_ENDPOINT value: US, EU, or staging.
+     * @param {object} [options]
+     * @param {string} [options.proxyUrl] Routes Mobile collector calls through a
+     *                                    customer-owned proxy to bypass CORS, e.g.
+     *                                    "https://your-domain.com/nr-proxy/mobile".
      */
     constructor(licenseKey, endpoint, options = {}) {
       this.licenseKey = licenseKey;
       this.endpoint = endpoint;
+      this.proxyUrl = options.proxyUrl || null;
       this.eventBuffer = [];
-      this.harvestInterval = options.harvestInterval || DEFAULT_HARVEST_TIME; 
+      this.harvestInterval = options.harvestInterval || DEFAULT_HARVEST_TIME;
       this.maxBufferSize = options.maxBufferSize || DEFAULT_BUFFER_SIZE;
-      this.dataToken = null; 
+      this.dataToken = null;
       this.isHarvesting = false;
 
       this.initialiseHarvester();
@@ -53,10 +56,15 @@ export default class NRHarvester {
       }
     }
 
+    _baseUrl() {
+      if (this.proxyUrl) return this.proxyUrl;
+      return this.endpoint === NR_ENDPOINT.STAGING
+        ? STAGING_MOBILE_ENDPOINT
+        : MOBILE_ENDPOINT;
+    }
+
     async fetchDataTokens(maxRetries = 10, initialDelay = 1000) {
-      const url = this.endpoint === NR_ENDPOINT.STAGING
-        ? `${STAGING_MOBILE_ENDPOINT}/v5/connect`
-        : `${MOBILE_ENDPOINT}/v5/connect`;
+      const url = `${this._baseUrl()}/v5/connect`;
     
       const headers = {
         "X-App-License-Key": this.licenseKey,
@@ -99,9 +107,7 @@ export default class NRHarvester {
     }
 
     async sendToMobileCollector(eventsToProcess) {
-      const url = this.endpoint === NR_ENDPOINT.STAGING
-              ? `${STAGING_MOBILE_ENDPOINT}/v3/data`
-              : `${MOBILE_ENDPOINT}/v3/data`
+      const url = `${this._baseUrl()}/v3/data`;
       const payload = [
           this.dataToken,
           DEVICE_INFO,
@@ -147,23 +153,24 @@ export default class NRHarvester {
         return;
       }
 
-      if (this.dataToken) {
-        this.isHarvesting = true;
-        const eventsToSend = [...this.eventBuffer]; 
-        this.eventBuffer = [];
-
-        this.sendToMobileCollector(eventsToSend)
-          .then((response) => {
-            nrvideo.Log.debug("Harvest successful. Response:", response);
-            this.isHarvesting = false;
-          })
-          .catch((error) => {
-            nrvideo.Log.error("Harvest failed, re-queueing events. Error:", error.message);
-            this.eventBuffer.unshift(...eventsToSend);
-            this.isHarvesting = false;
-          });
-      } else {
+      if (!this.dataToken) {
         nrvideo.Log.error("No valid data token available. Cannot send events.");
+        return;
       }
+
+      this.isHarvesting = true;
+      const eventsToSend = [...this.eventBuffer];
+      this.eventBuffer = [];
+
+      this.sendToMobileCollector(eventsToSend)
+        .then((response) => {
+          nrvideo.Log.debug("Harvest successful. Response:", response);
+          this.isHarvesting = false;
+        })
+        .catch((error) => {
+          nrvideo.Log.error("Harvest failed, re-queueing events. Error:", error.message);
+          this.eventBuffer.unshift(...eventsToSend);
+          this.isHarvesting = false;
+        });
     }
 }

@@ -1,6 +1,9 @@
 <html>
 <head>
 
+    <!-- Chromecast Device Emulator polyfill (local testing only — remove for production) -->
+    <script src="https://unpkg.com/chromecast-device-emulator/dist/receiver-utils.min.js"></script>
+
     <!-- New Relic Video -->
     <script src="../dist/newrelic-caf.min.js"></script>
 
@@ -11,18 +14,29 @@
     <cast-media-player></cast-media-player>
     <script>
 
-    nrvideo.Log.level = nrvideo.Log.Levels.ALL;
-
     let receiverContext = cast.framework.CastReceiverContext.getInstance();
     receiverContext.start();
-    receiverContext.setLoggerLevel(cast.framework.LoggerLevel.DEBUG);
 
-    // Add the New Relic CAF tracker to the receiver context.
-    nrvideo.Core.addTracker(new nrvideo.CAFTracker(receiverContext, authCredentials = { 
-        accountId: "<ACCOUNT_ID>",
-        applicationToken: "<APPLICATION_TOKEN>",
-        endpoint: "<ENDPOINT>"
-    }));
+    // Get Application info from New Relic onboarding (JavaScript Snippet / Browser agent setup)
+    const options = {
+        info: {
+            licenseKey: 'YOUR_LICENSE_KEY',
+            beacon: 'YOUR_BEACON_URL',
+            applicationId: 'YOUR_APP_ID',
+        }
+    };
+
+    const tracker = new CAFTracker(receiverContext, options);
+
+    // For setting userId
+    // tracker.setUserId('userId');
+
+    // For sending custom attributes
+    // tracker.sendOptions({ customData: { contentTitle: 'My Video' } });
+
+    // For sending a custom action with attributes
+    // tracker.sendCustom('CUSTOM_ACTION', 'state time', { test1: 'value1' });
+
 
     let playerManager = receiverContext.getPlayerManager();
     playerManager.setMessageInterceptor(cast.framework.messages.MessageType.LOAD, request => {

@@ -6,7 +6,7 @@
     },
     {
       "time": 1064,
-      "ipcMessage": "{\"data\":\"{\\\"type\\\":\\\"LOAD\\\",\\\"requestId\\\":889570262,\\\"sessionId\\\":\\\"46fd154e-f03d-4d58-986d-4998c43639a7\\\",\\\"media\\\":{\\\"contentId\\\":\\\"BigBuckBunny_CanonicalID\\\",\\\"contentUrl\\\":\\\"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4\\\",\\\"streamType\\\":\\\"LIVE\\\",\\\"contentType\\\":\\\"video/mp4\\\",\\\"metadata\\\":{\\\"type\\\":0,\\\"metadataType\\\":0,\\\"title\\\":\\\"Big Buck Bunny\\\",\\\"images\\\":[{\\\"url\\\":\\\"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg\\\"}]}},\\\"autoplay\\\":true}\",\"namespace\":\"urn:x-cast:com.google.cast.media\",\"senderId\":\"7f8b100d-a1fe-e60b-5a35-6feaa22976df.2:152792770056491611\"}"
+      "ipcMessage": "{\"data\":\"{\\\"type\\\":\\\"LOAD\\\",\\\"requestId\\\":889570262,\\\"sessionId\\\":\\\"46fd154e-f03d-4d58-986d-4998c43639a7\\\",\\\"media\\\":{\\\"contentId\\\":\\\"BigBuckBunny_CanonicalID\\\",\\\"contentUrl\\\":\\\"https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.mpd\\\",\\\"streamType\\\":\\\"BUFFERED\\\",\\\"contentType\\\":\\\"application/dash+xml\\\",\\\"metadata\\\":{\\\"type\\\":0,\\\"metadataType\\\":0,\\\"title\\\":\\\"Big Buck Bunny\\\",\\\"images\\\":[{\\\"url\\\":\\\"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg\\\"}]}},\\\"autoplay\\\":true}\",\"namespace\":\"urn:x-cast:com.google.cast.media\",\"senderId\":\"7f8b100d-a1fe-e60b-5a35-6feaa22976df.2:152792770056491611\"}"
     },
     {
       "time": 50000,

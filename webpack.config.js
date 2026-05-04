@@ -12,8 +12,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: pkg.name + '.min.js',
-    library: 'nrvideo',
-    libraryTarget: 'umd'
+    library: 'CAFTracker',
+    libraryTarget: 'umd',
+    libraryExport: 'default'
   },
   devtool: 'source-map',
   module: {
