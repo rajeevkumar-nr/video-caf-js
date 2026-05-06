@@ -1,7 +1,8 @@
-[![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
+[![Community Project header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Community_Project.png)](https://opensource.newrelic.com/oss-category/#community-project)
 
 # New Relic CAF Tracker
 
+[![npm version](https://badge.fury.io/js/%40newrelic%2Fvideo-caf.svg)](https://badge.fury.io/js/%40newrelic%2Fvideo-caf)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The New Relic CAF Tracker provides comprehensive video analytics for Chromecast receiver applications built with the Cast Application Framework (CAF). Track playback events, monitor quality, identify errors, and gain deep insights into streaming performance and user experience on Chromecast devices.
@@ -13,12 +14,14 @@ The New Relic CAF Tracker provides comprehensive video analytics for Chromecast 
 - **Sender User Agent** - Automatically captures the sender device user agent
 - **Quality Monitoring** - Bitrate and rendition change tracking
 - **Error Tracking** - Detailed error codes with CAF-specific error classification
-- **Easy Integration** - Single script tag, no build system required on the receiver
+- **Easy Integration** - NPM package or direct script include
 - **Seek & Buffer Tracking** - Complete seek and buffer event lifecycle
 
 ## Table of Contents
 
 - [Installation](#installation)
+  - [Option 1: NPM/Yarn](#option-1-install-via-npmyarn)
+  - [Option 2: Direct Script Include](#option-2-direct-script-include-without-npm)
 - [Prerequisites](#prerequisites)
 - [Usage](#usage)
 - [Best Practices](#best-practices)
@@ -32,7 +35,23 @@ The New Relic CAF Tracker provides comprehensive video analytics for Chromecast 
 
 ## Installation
 
-Include the CAF Tracker script and the CAF Receiver SDK in your Chromecast receiver HTML:
+### Option 1: Install via NPM/Yarn
+
+Install the package using your preferred package manager:
+
+**NPM:**
+```bash
+npm install @newrelic/video-caf
+```
+
+**Yarn:**
+```bash
+yarn add @newrelic/video-caf
+```
+
+### Option 2: Direct Script Include (Without NPM)
+
+For quick integration without a build system, include the tracker directly in your receiver HTML:
 
 ```html
 <!DOCTYPE html>
@@ -50,7 +69,7 @@ Include the CAF Tracker script and the CAF Receiver SDK in your Chromecast recei
     <script>
       const receiverContext = cast.framework.CastReceiverContext.getInstance();
 
-      // Configure New Relic tracker with credentials from one.newrelic.com
+      // Retrieve these credentials by following the Streaming Video & Ads onboarding steps in New Relic Browser (one.newrelic.com)
       const options = {
         info: {
           licenseKey:    'YOUR_LICENSE_KEY',
@@ -94,10 +113,12 @@ Before initializing the tracker, obtain your New Relic configuration:
 ### Basic Setup
 
 ```javascript
+import CAFTracker from '@newrelic/video-caf';
+
 // 1. Get the CastReceiverContext singleton
 const receiverContext = cast.framework.CastReceiverContext.getInstance();
 
-// 2. Configure tracker with credentials from one.newrelic.com
+// 2. Retrieve these credentials by following the Streaming Video & Ads onboarding steps in New Relic Browser (one.newrelic.com)
 const options = {
   info: {
     licenseKey:    'YOUR_LICENSE_KEY',
@@ -292,6 +313,8 @@ tracker.sendOptions({
 ### Example: Complete Integration
 
 ```javascript
+import CAFTracker from '@newrelic/video-caf';
+
 const receiverContext = cast.framework.CastReceiverContext.getInstance();
 
 const tracker = new CAFTracker(receiverContext, {
