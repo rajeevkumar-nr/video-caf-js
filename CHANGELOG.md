@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [4.0.0] - 2026/05/07
+### Update
+- Switch from mobile end point to bam end point
+- Released to NPM
+- Improve Release process
+
 ## [3.1.0] - 2025/06/23
 ### Update
 - Updated the version of Video Core.

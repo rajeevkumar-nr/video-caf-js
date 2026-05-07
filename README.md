@@ -15,7 +15,8 @@ The New Relic CAF Tracker provides comprehensive video analytics for Chromecast 
 - **Quality Monitoring** - Bitrate and rendition change tracking
 - **Error Tracking** - Detailed error codes with CAF-specific error classification
 - **Easy Integration** - NPM package or direct script include
-- **Seek & Buffer Tracking** - Complete seek and buffer event lifecycle
+- **QoE Metrics** - Quality of Experience aggregation for startup time, buffering, and playback quality
+- **Event Segregation** - Organized event types: VideoAction, VideoAdAction, VideoErrorAction, VideoCustomAction
 
 ## Table of Contents
 
@@ -90,7 +91,7 @@ For quick integration without a build system, include the tracker directly in yo
 **Setup Steps:**
 
 1. **Get Configuration** - Visit [one.newrelic.com](https://one.newrelic.com) and follow the Streaming Video & Ads onboarding flow to get your `licenseKey`, `beacon`, and `applicationID`.
-2. **Integrate** - Include the script in your receiver HTML and initialize with your configuration **before** calling `receiverContext.start()`.
+2. **Integrate** - Include the script in your receiver and initialize with your configuration **before** calling `receiverContext.start()`.
 
 ## Prerequisites
 
@@ -239,6 +240,56 @@ SELECT average(contentBitrate) FROM VideoAction
 FACET region SINCE 1 hour ago
 ```
 
+### 4. Gradual Rollout with Feature Flags
+
+When deploying to production, use feature flags to enable the tracker gradually. This helps you:
+
+- Validate data collection without impacting all users
+- Monitor performance impact at scale
+- Catch issues before full deployment
+- Control monitoring costs
+
+```javascript
+// Example using a feature flag
+const rolloutPercentage = 5; // Start with 5% of users
+
+function shouldEnableTracking(userId) {
+  // Simple percentage-based rollout
+  const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return (hash % 100) < rolloutPercentage;
+}
+
+const receiverContext = cast.framework.CastReceiverContext.getInstance();
+
+// Only initialize tracker if user is in rollout
+if (shouldEnableTracking(currentUser.id)) {
+  const tracker = new CAFTracker(receiverContext, {
+    info: {
+      licenseKey: 'YOUR_LICENSE_KEY',
+      beacon: 'bam.nr-data.net',
+      applicationID: 'YOUR_APP_ID',
+    },
+    customData: {
+      contentTitle: videoMetadata.title,
+      userId: currentUser.id,
+      rolloutGroup: `${rolloutPercentage}%`,  // Track which rollout group
+    },
+  });
+}
+
+receiverContext.start();
+```
+
+**Recommended Rollout Schedule:**
+
+| Phase | Percentage | Duration | Validation |
+|-------|-----------|----------|------------|
+| Initial | 5% | 2-3 days | Verify data flowing to New Relic |
+| Early | 15% | 3-5 days | Check data quality and performance |
+| Expansion | 25% | 5-7 days | Validate across device types |
+| Majority | 50% | 1-2 weeks | Monitor at scale |
+| Full | 100% | Ongoing | Complete deployment |
+
 ## Configuration Options
 
 ### `options.info` (required)
@@ -249,7 +300,14 @@ FACET region SINCE 1 hour ago
 | `beacon` | string | Data endpoint — use `bam.nr-data.net` |
 | `applicationID` | string | New Relic application ID |
 
-### `options.customData` (optional)
+### QoE (Quality of Experience) Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `qoeAggregate` | boolean | `false` | Enable Quality of Experience event aggregation. Set to `true` to collect QoE metrics like startup time, buffering, and average bitrate. |
+| `qoeIntervalFactor` | number | `1` | Controls QoE event frequency. A value of `N` sends QoE events once every N harvest cycles. Must be a positive integer. QoE events are always included on first and final harvest cycles. |
+
+### Custom Data
 
 Add custom attributes to all events:
 
@@ -263,9 +321,9 @@ customData: {
 }
 ```
 
-> **Limit:** The maximum total number of custom attributes per event is **150**. Attributes beyond this limit will be dropped.
+> **Limit:** The maximum total number of custom attributes per event is **150**. Any attributes beyond this limit will be dropped.
 
-> **Note:** Reserved keywords (`actionName`, `contentId`, `contentTitle`, `playerName`, `playerVersion`, `viewSession`, `viewId`) cannot be used as custom attribute names — they will be dropped. See [DATAMODEL.md](./DATAMODEL.md) for the full reserved keyword list.
+> **Note:** There are special keywords reserved for default attributes (see [DATAMODEL.md](./DATAMODEL.md)). Please do not use these as custom attributes, as they will be dropped. Examples of reserved keywords include `actionName`, `contentId`, `contentTitle`, `playerName`, `playerVersion`, `viewSession`, `viewId`, and others listed in the data model documentation.
 
 ## API Reference
 

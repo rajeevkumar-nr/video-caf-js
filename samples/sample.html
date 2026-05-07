@@ -5,7 +5,7 @@
     <script src="https://unpkg.com/chromecast-device-emulator/dist/receiver-utils.min.js"></script>
 
     <!-- New Relic Video -->
-    <script src="../dist/newrelic-caf.min.js"></script>
+    <script src="../dist/umd/newrelic-caf.min.js"></script>
 
     <!-- CAF Receiver SDK -->
     <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
@@ -15,18 +15,19 @@
     <script>
 
     let receiverContext = cast.framework.CastReceiverContext.getInstance();
-    receiverContext.start();
 
-    // Get Application info from New Relic onboarding (JavaScript Snippet / Browser agent setup)
+    // Retrieve these credentials by following the Streaming Video & Ads onboarding steps in New Relic Browser (one.newrelic.com)
     const options = {
         info: {
-            licenseKey: 'YOUR_LICENSE_KEY',
-            beacon: 'YOUR_BEACON_URL',
-            applicationId: 'YOUR_APP_ID',
+            licenseKey:    "NRBR-11e0d217b78ad09b11f",
+            beacon:        "bam.nr-data.net",
+            applicationID: "601641592"
         }
     };
 
     const tracker = new CAFTracker(receiverContext, options);
+
+    receiverContext.start();
 
     // For setting userId
     // tracker.setUserId('userId');
@@ -36,20 +37,6 @@
 
     // For sending a custom action with attributes
     // tracker.sendCustom('CUSTOM_ACTION', 'state time', { test1: 'value1' });
-
-
-    let playerManager = receiverContext.getPlayerManager();
-    playerManager.setMessageInterceptor(cast.framework.messages.MessageType.LOAD, request => {
-        console.log("Intercepting LOAD request");
-        
-        const vmapUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=" + Math.floor(Math.random() * Math.pow(10, 10));
-
-        request.media.vmapAdsRequest = {
-            adTagUrl: vmapUrl,
-        };
-
-        return request;
-    });
 
     </script>
 </body>
