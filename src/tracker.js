@@ -18,9 +18,6 @@ export default class CAFTracker extends nrvideo.VideoTracker {
       throw new Error('CAFTracker requires a valid CastReceiverContext. Pass cast.framework.CastReceiverContext.getInstance() as the first argument.');
     }
     super(receiverContext.getPlayerManager(), options);
-        console.log('CAFTracker constructor called with receiverContext:', receiverContext, 'and options:', options);
-
-    console.log('Initializing CAFTracker with options:', receiverContext.getPlayerManager());
     this.receiverContext = receiverContext;
     this.reset();
     nrvideo.Core.addTracker(this, options);
@@ -215,7 +212,6 @@ export default class CAFTracker extends nrvideo.VideoTracker {
   }
 
   onLoadedMetadata (ev) {
-    console.log('Loaded metadata event received:', ev);
     if (!this.adsTracker.state.isAdBreak) {
       this.sendDownload()
     }
