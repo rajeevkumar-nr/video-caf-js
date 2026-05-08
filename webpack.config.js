@@ -20,7 +20,7 @@ module.exports = [
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, './dist/umd'),
-      filename: 'newrelic-caf.min.js',
+      filename: 'newrelic-video-caf.min.js',
       library: 'CAFTracker',
       libraryTarget: 'umd',
       libraryExport: 'default',
