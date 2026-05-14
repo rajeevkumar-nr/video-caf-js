@@ -74,7 +74,7 @@ For quick integration without a build system, include the tracker directly in yo
       const options = {
         info: {
           licenseKey:    'YOUR_LICENSE_KEY',
-          beacon:        'bam.nr-data.net',
+          beacon:        'YOUR_BEACON_URL',
           applicationID: 'YOUR_APPLICATION_ID',
         },
       };
@@ -143,7 +143,7 @@ receiverContext.start();
 const options = {
   info: {
     licenseKey:    'YOUR_LICENSE_KEY',
-    beacon:        'bam.nr-data.net',
+    beacon:        'YOUR_BEACON_URL',
     applicationID: 'YOUR_APPLICATION_ID',
   },
   config: {
@@ -170,7 +170,7 @@ The `contentTitle` attribute is populated from the media metadata title if prese
 const tracker = new CAFTracker(receiverContext, {
   info: {
     licenseKey:    'YOUR_LICENSE_KEY',
-    beacon:        'bam.nr-data.net',
+    beacon:        'YOUR_BEACON_URL',
     applicationID: 'YOUR_APPLICATION_ID',
   },
   customData: {
@@ -198,7 +198,7 @@ Track analytics per user by setting a user identifier:
 const tracker = new CAFTracker(receiverContext, {
   info: {
     licenseKey:    'YOUR_LICENSE_KEY',
-    beacon:        'bam.nr-data.net',
+    beacon:        'YOUR_BEACON_URL',
     applicationID: 'YOUR_APPLICATION_ID',
   },
   customData: {
@@ -218,7 +218,7 @@ Enrich your analytics data with deployment-specific attributes:
 const tracker = new CAFTracker(receiverContext, {
   info: {
     licenseKey:    'YOUR_LICENSE_KEY',
-    beacon:        'bam.nr-data.net',
+    beacon:        'YOUR_BEACON_URL',
     applicationID: 'YOUR_APPLICATION_ID',
   },
   customData: {
@@ -232,7 +232,7 @@ const tracker = new CAFTracker(receiverContext, {
 });
 ```
 
-**Query custom attributes in New Relic:**
+**Use these attributes in New Relic queries:**
 
 ```sql
 -- Analyze content starts by subscription tier
@@ -270,7 +270,7 @@ if (shouldEnableTracking(currentUser.id)) {
   const tracker = new CAFTracker(receiverContext, {
     info: {
       licenseKey: 'YOUR_LICENSE_KEY',
-      beacon: 'bam.nr-data.net',
+      beacon: 'YOUR_BEACON_URL',
       applicationID: 'YOUR_APP_ID',
     },
     customData: {
@@ -382,7 +382,7 @@ const receiverContext = cast.framework.CastReceiverContext.getInstance();
 const tracker = new CAFTracker(receiverContext, {
   info: {
     licenseKey:    'YOUR_LICENSE_KEY',
-    beacon:        'bam.nr-data.net',
+    beacon:        'YOUR_BEACON_URL',
     applicationID: 'YOUR_APPLICATION_ID',
   },
   config: {
@@ -427,6 +427,12 @@ If the issue has been confirmed as a bug or is a feature request, please file a 
 - [New Relic Community](https://discuss.newrelic.com): The best place to engage in troubleshooting questions
 - [New Relic University](https://learn.newrelic.com): A range of online training for New Relic users of every level
 - [New Relic Technical Support](https://support.newrelic.com): 24/7/365 ticketed support. Read more about our [Technical Support Offerings](https://docs.newrelic.com/docs/licenses/license-information/general-usage-licenses/support-plan)
+
+### Additional Resources
+
+- **[DATAMODEL.md](./DATAMODEL.md)** - Complete event and attribute reference
+- **[DEVELOPING.md](./DEVELOPING.md)** - Building and testing instructions
+- **[REVIEW.md](./REVIEW.md)** - Code review guidelines
 
 ## Contribute
 
