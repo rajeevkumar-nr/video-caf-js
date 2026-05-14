@@ -1,9 +1,11 @@
 <html>
 <head>
-    <script type="text/javascript" src="agent.js"></script>
+
+    <!-- Chromecast Device Emulator polyfill (local testing only — remove for production) -->
+    <script src="https://unpkg.com/chromecast-device-emulator/dist/receiver-utils.min.js"></script>
 
     <!-- New Relic Video -->
-    <script src="../dist/newrelic-caf.min.js"></script>
+    <script src="../dist/umd/newrelic-video-caf.min.js"></script>
 
     <!-- CAF Receiver SDK -->
     <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
@@ -12,38 +14,42 @@
     <cast-media-player></cast-media-player>
     <script>
 
-        // Capture JS errors
-        window.onerror = function (msg, url, line) {
-            console.log("Message : " + msg );
-            console.log("url : " + url );
-            console.log("Line number : " + line );
-            newrelic.addPageAction("JSError", {"errMessage": msg, "errUrl": url, "errLine": line})
+    let receiverContext = cast.framework.CastReceiverContext.getInstance();
+
+    // Retrieve these credentials by following the Streaming Video & Ads onboarding steps in New Relic Browser (one.newrelic.com)
+    const options = {
+        info: {
+            licenseKey:    "YOUR_LICENSE_KEY",
+            beacon:        "YOUR_BEACON_URL",
+            applicationID: "YOUR_APP_ID"
         }
+    };
 
-        cast.framework.CastReceiverContext.getInstance().start();
-        cast.framework.CastReceiverContext.getInstance().setLoggerLevel(cast.framework.LoggerLevel.DEBUG);
+    const tracker = new CAFTracker(receiverContext, options);
 
-        // Set logging level (show all messages)
-        nrvideo.Log.level = nrvideo.Log.Levels.ALL;
+    receiverContext.start();
 
-        // Config New Relic Insights backend
-        //nrvideo.Core.setBackend(new nrvideo.NRInsightsBackend("ACCOUNT ID", "API KEY"));
+    // For setting userId
+    // tracker.setUserId('userId');
+
+    // For sending custom attributes
+    // tracker.sendOptions({ customData: { contentTitle: 'My Video' } });
+
+    // For sending a custom action with attributes
+    // tracker.sendCustom('CUSTOM_ACTION', 'state time', { test1: 'value1' });
+
+     let playerManager = receiverContext.getPlayerManager();
+    playerManager.setMessageInterceptor(cast.framework.messages.MessageType.LOAD, request => {
+        console.log("Intercepting LOAD request");
         
-        // Init CAF Tracker
-        nrvideo.Core.addTracker(new nrvideo.CAFTracker());
+        const vmapUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=" + Math.floor(Math.random() * Math.pow(10, 10));
 
-        let playerManager = cast.framework.CastReceiverContext.getInstance().getPlayerManager();
-        playerManager.setMessageInterceptor(cast.framework.messages.MessageType.LOAD, request => {
-            console.log("Intercepting LOAD request");
-            
-            const vmapUrl = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=" + Math.floor(Math.random() * Math.pow(10, 10));
+        request.media.vmapAdsRequest = {
+            adTagUrl: vmapUrl,
+        };
 
-            request.media.vmapAdsRequest = {
-                adTagUrl: vmapUrl,
-            };
-
-            return request;
-        });
+        return request;
+    });
 
     </script>
 </body>
