@@ -34,7 +34,7 @@ The New Relic CAF Tracker provides comprehensive video analytics for Chromecast 
 - [Contribute](#contribute)
 - [License](#license)
 
-## Installation
+## Installation Process
 
 ### Option 1: Install via NPM/Yarn
 
