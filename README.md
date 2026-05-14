@@ -304,6 +304,9 @@ const tracker = new CAFTracker(receiverContext, {
     beacon:        'bam.nr-data.net',
     applicationID: 'YOUR_APPLICATION_ID',
   },
+  config: {
+    qoeAggregate: true,
+  },
   customData: {
     contentTitle: 'My Video',
     userId:       'user-12345',
