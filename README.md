@@ -70,13 +70,17 @@ For quick integration without a build system, include the tracker directly in yo
     <script>
       const receiverContext = cast.framework.CastReceiverContext.getInstance();
 
-      // Retrieve these credentials by following the Streaming Video & Ads onboarding steps in New Relic Browser (one.newrelic.com)
+      // Retrieve these credentials by following the Streaming Video & Ads onboarding steps in New Relic Browser(one.newrelic.com)
       const options = {
         info: {
           licenseKey:    'YOUR_LICENSE_KEY',
           beacon:        'YOUR_BEACON_URL',
           applicationID: 'YOUR_APPLICATION_ID',
-        },
+        },config: {
+    qoeAggregate: true,        // Enable QoE event aggregation
+    qoeIntervalFactor: 2,      // Send QoE events every 2 harvest cycles
+  },
+
       };
 
       // Initialize tracker BEFORE calling receiverContext.start()
