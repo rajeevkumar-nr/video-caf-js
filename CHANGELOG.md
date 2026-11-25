@@ -1,3 +1,26 @@
+## [4.0.0](https://github.com/rajeevkumar-nr/video-caf-js/compare/v3.1.0...v4.0.0) (2026-11-25)
+- **New feature: "upgrade to video-core v5.0.1 with browser subpath export"**
+- **New feature: Remove constant value**
+- **New feature: Update changelog file**
+- **New feature: Update package version**
+- **New feature: Update package-lock file**
+- **New feature: Update release file**
+- **New feature: Update with stable**
+- **New feature: Update workflow**
+- **New feature: upgrade to video-core v5 with breaking exports change**
+- **Bug fix: Added qoe configuration**
+- **Bug fix: Added qoe configuration**
+- **Bug fix: Improve Release process ([#25](https://github.com/rajeevkumar-nr/video-caf-js/issues/25))**
+- **Bug fix: regenerate package-lock.json for video-core v5.0.1**
+- **Bug fix: pin @newrelic/video-core to 5.1.1**
+- **Bug fix: Remove console statement**
+- **Bug fix: Remove Harvester**
+- **Bug fix: Remove unused file**
+- **Bug fix: Switch to bam end point**
+- **Bug fix: Update changelog.md**
+- **Bug fix: Update package.json**
+- **Bug fix: Update Readme.md**
+
 ## [5.0.1](https://github.com/newrelic/video-caf-js/compare/v5.0.0...v5.0.1) (2026-10-30)
 
 ### Improvements
